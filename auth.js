@@ -6,7 +6,7 @@ const OAuth2 = require('googleapis').auth.OAuth2;
 // If modifying these scopes, delete your previously saved credentials
 // at ~/.credentials/sheets.googleapis.com-nodejs-quickstart.json
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
-const TOKEN_DIR = (process.env.PWD || process.env.HOME || process.env.HOMEPATH ||
+const TOKEN_DIR = (__dirname || process.env.PWD || process.env.HOME || process.env.HOMEPATH ||
     process.env.USERPROFILE) + '/.credentials/';
 const TOKEN_PATH = TOKEN_DIR + 'sheets.googleapis.com.json';
 

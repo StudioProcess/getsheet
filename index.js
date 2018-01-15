@@ -1,4 +1,4 @@
-const CACHE_FOLDER = '.cache';
+const CACHE_FOLDER = __dirname + '/.cache';
 
 const fs = require('fs');
 const auth = require('./auth');
