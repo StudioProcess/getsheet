@@ -62,7 +62,7 @@ function setCachedData(id, data) {
 }
 
 
-function getSpreadsheet(spreadsheetId, clientSecretFilePath, refreshCache = false) {
+async function getSpreadsheet(spreadsheetId, clientSecretFilePath, refreshCache = false) {
   return getCachedData(spreadsheetId).then(data => {
     if (refreshCache || !data) {
       return retrieveSpreadsheet(spreadsheetId, clientSecretFilePath).then( data => setCachedData(spreadsheetId, data) );
@@ -72,10 +72,47 @@ function getSpreadsheet(spreadsheetId, clientSecretFilePath, refreshCache = fals
 }
 
 
-// function simplifySpreadsheet(data) {
-// }
+/*
+  {
+    spreadsheetId
+    title
+    sheets: []
+      sheetId
+      title
+      rows: []
+  }
+*/
+function simplify(data) {
+  let sheets = data.sheets.map(sheet => {
+    let rows = sheet.data[0].rowData.map(row => {
+      return row.values.map( value => {
+        let val = value.effectiveValue;
+        if ( val == undefined ) return '';
+        return val.stringValue;
+      });
+    });
+    
+    return {
+      sheedId: sheet.properties.sheetId,
+      title: sheet.properties.title,
+      properties: sheet.properties,
+      rows
+    }
+  });
+  
+  return {
+    spreadsheetId: data.spreadsheetId,
+    title: data.properties.title,
+    properties: data.properties,
+    sheets
+  };
+}
 
+function getSimplified(spreadsheetId, clientSecretFilePath, refreshCache = false) {
+  return getCachedData(spreadsheetId).then( data => simplify(data) );
+}
 
 module.exports = {
-  getSpreadsheet
+  getRaw: getSpreadsheet,
+  getSimplified
 };
