@@ -62,7 +62,7 @@ function setCachedData(id, data) {
 }
 
 
-async function getSpreadsheet(spreadsheetId, clientSecretFilePath, refreshCache = false) {
+function getSpreadsheet(spreadsheetId, clientSecretFilePath, refreshCache = false) {
   return getCachedData(spreadsheetId).then(data => {
     if (refreshCache || !data) {
       return retrieveSpreadsheet(spreadsheetId, clientSecretFilePath).then( data => setCachedData(spreadsheetId, data) );
@@ -109,7 +109,7 @@ function simplify(data) {
 }
 
 function getSimplified(spreadsheetId, clientSecretFilePath, refreshCache = false) {
-  return getCachedData(spreadsheetId).then( data => simplify(data) );
+  return getSpreadsheet(spreadsheetId, clientSecretFilePath, refreshCache).then( data => simplify(data) );
 }
 
 module.exports = {
