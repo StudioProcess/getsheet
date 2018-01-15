@@ -9,6 +9,8 @@
   "keywords": [],
   "author": "Process <contact@process.studio> (https://process.studio)",
   "license": "AGPL-3.0",
+  "repository": "github:StudioProcess/getsheet",
+  "private": true,
   "dependencies": {
     "googleapis": "^24.0.0"
   }
