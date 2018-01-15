@@ -1,0 +1,15 @@
+{
+  "name": "getsheet",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test"
+  },
+  "keywords": [],
+  "author": "Process <contact@process.studio> (https://process.studio)",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "googleapis": "^24.0.0"
+  }
+}
