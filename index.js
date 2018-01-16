@@ -87,8 +87,8 @@ function simplify(data) {
     let rows = sheet.data[0].rowData.map(row => {
       return row.values.map( value => {
         let val = value.effectiveValue;
-        if ( val == undefined ) return '';
-        return val.stringValue;
+        if ( !val ) return '';
+        return val.stringValue ? val.stringValue :''; // replaces null values with ''
       });
     });
     
