@@ -1,6 +1,7 @@
 const CACHE_FOLDER = __dirname + '/.cache';
 
 const fs = require('fs');
+const path = require('path');
 const auth = require('./auth');
 const sheets = require('googleapis').sheets('v4');
 
@@ -25,6 +26,38 @@ function retrieveSpreadsheet(spreadsheetId, clientSecretFilePath) {
 }
 
 
+// store object in file
+function storeJSON(data, filepath) {
+  return new Promise((resolve, reject) => {
+    try {
+      fs.mkdirSync(path.dirname(filepath));
+    } catch (err) {
+      if (err.code != 'EEXIST') {
+        reject(err);
+        return;
+      }
+    }
+    
+    fs.writeFile(filepath, JSON.stringify(data, null, 2), err => {
+      if (err) {
+        console.log('error', err);
+        reject(err);
+        return;
+      }
+      resolve(data);
+    });
+  });
+}
+
+
+function setCachedData(id, data) {
+  return storeJSON(data, CACHE_FOLDER + '/' + id + '.json').then(data => {
+    console.log("cache updated");
+    return data;
+  });
+}
+
+
 function getCachedData(id) {
   return new Promise((resolve, reject) => {
     fs.readFile(CACHE_FOLDER + '/' + id + '.json', 'utf8', (err, data) => {
@@ -38,36 +71,35 @@ function getCachedData(id) {
 }
 
 
-function setCachedData(id, data) {
-  return new Promise((resolve, reject) => {
-    try {
-      fs.mkdirSync(CACHE_FOLDER);
-    } catch (err) {
-      if (err.code != 'EEXIST') {
-        reject(err);
-        return;
-      }
-    }
-    
-    fs.writeFile(CACHE_FOLDER + '/' + id + '.json', JSON.stringify(data, null, 2), err => {
-      if (err) {
-        console.log('error', err);
-        reject(err);
-        return;
-      }
-      resolve(data);
-      console.log("cache updated");
-    });
-  });
+function storeData(data, folder) {
+  return storeJSON(data, folder + '/' + data.spreadsheetId + '.json');
 }
 
+// default options for getSpreadsheet() and getRaw()
+let defaults = {
+  spreadsheetId: "",
+  clientSecretPath: "",
+  refreshCache: false,
+  saveFolder: ""
+};
 
-function getSpreadsheet(spreadsheetId, clientSecretFilePath, refreshCache = false) {
-  return getCachedData(spreadsheetId).then(data => {
-    if (refreshCache || !data) {
-      return retrieveSpreadsheet(spreadsheetId, clientSecretFilePath).then( data => setCachedData(spreadsheetId, data) );
+function getSpreadsheet(options) {
+  options = Object.assign({}, defaults, options);
+  
+  return getCachedData(options.spreadsheetId).then(data => {
+    let dataPromise;
+    
+    if (options.refreshCache || !data) {
+      dataPromise = retrieveSpreadsheet(options.spreadsheetId, options.clientSecretPath)
+        .then( data => setCachedData(options.spreadsheetId, data) )
+    } else {
+      dataPromise = Promise.resolve(data);
     }
-    return data;
+    
+    return dataPromise.then( data => {
+      if (options.saveFolder) return storeData(data, options.saveFolder);
+      return data;
+    });
   });
 }
 
@@ -108,9 +140,18 @@ function simplify(data) {
   };
 }
 
-function getSimplified(spreadsheetId, clientSecretFilePath, refreshCache = false) {
-  return getSpreadsheet(spreadsheetId, clientSecretFilePath, refreshCache).then( data => simplify(data) );
+function getSimplified(options) {
+  options = Object.assign({}, defaults, options);
+  optionsNoSave = Object.assign({}, options, { saveFolder: '' });
+  
+  return getSpreadsheet(optionsNoSave)
+    .then( data => simplify(data) )
+    .then( data => {
+      if (options.saveFolder) return storeData(data, options.saveFolder);
+      return data;
+    });
 }
+
 
 module.exports = {
   getRaw: getSpreadsheet,
