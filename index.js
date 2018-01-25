@@ -117,6 +117,7 @@ function getSpreadsheet(options) {
 function simplify(data) {
   let sheets = data.sheets.map(sheet => {
     let rows = sheet.data[0].rowData.map(row => {
+      if (!row.values) return []; // a row without any values
       return row.values.map( value => {
         let val = value.effectiveValue;
         if ( !val ) return '';
