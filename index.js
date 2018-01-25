@@ -125,7 +125,7 @@ function simplify(data) {
     });
     
     return {
-      sheedId: sheet.properties.sheetId,
+      sheetId: sheet.properties.sheetId,
       title: sheet.properties.title,
       properties: sheet.properties,
       rows
