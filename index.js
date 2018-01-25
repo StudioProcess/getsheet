@@ -121,7 +121,8 @@ function simplify(data) {
       return row.values.map( value => {
         let val = value.effectiveValue;
         if ( !val ) return '';
-        return val.stringValue ? val.stringValue :''; // replaces null values with ''
+        if (val.numberValue !== undefined) return val.numberValue;
+        return val.stringValue ? val.stringValue : ''; // replaces null values with ''
       });
     });
     
